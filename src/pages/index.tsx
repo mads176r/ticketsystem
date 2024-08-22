@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
-import { motion } from "framer-motion";
+import DashboardChart from "@/components/DashboardChart";
 
 const dummyTickets = [
   {
@@ -55,7 +55,7 @@ export default function Home() {
         <Topbar toggleSidebar={toggleSidebar} />
         <main className="p-6 flex-1 bg-gray-50">
           <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="p-4 bg-white shadow rounded">
               <h2 className="text-xl font-semibold mb-2">Total Tickets</h2>
               <p className="text-3xl font-bold text-gray-800">{totalTickets}</p>
@@ -75,6 +75,9 @@ export default function Home() {
             <div className="p-4 bg-white shadow rounded">
               <h2 className="text-xl font-semibold mb-2">Closed Tickets</h2>
               <p className="text-3xl font-bold text-red-600">{closedTickets}</p>
+            </div>
+            <div className="md:col-span-2 lg:col-span-3 p-4 bg-white shadow rounded">
+              <DashboardChart />
             </div>
           </div>
         </main>
