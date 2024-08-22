@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
-import PageTransition from '@/components/pagetransition';
 
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +12,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-      <div className={`flex-1 flex flex-col transition-transform duration-300  ease-in-out ${isOpen ? 'pl-64' : 'pl-0'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${isOpen ? 'pl-64' : 'pl-0'}`}>
         <Topbar />
         <main className="p-6 flex-1 bg-gray-50">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
