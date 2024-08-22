@@ -1,6 +1,13 @@
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
+import 'tailwindcss/tailwind.css'; // Ensure Tailwind CSS is loaded
+import { AppProps } from 'next/app';
+import PageTransition from '@/components/pagetransition';
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <PageTransition>
+      <Component {...pageProps} />
+    </PageTransition>
+  );
 }
+
+export default MyApp;
