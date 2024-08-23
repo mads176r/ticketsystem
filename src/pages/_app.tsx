@@ -1,12 +1,15 @@
-import 'tailwindcss/tailwind.css'; // Ensure Tailwind CSS is loaded
-import { AppProps } from 'next/app';
-import PageTransition from '@/components/pagetransition';
+import "tailwindcss/tailwind.css"; // Ensure Tailwind CSS is loaded
+import { AppProps } from "next/app";
+import { AnimatePresence } from "framer-motion";
+import PageTransition from "@/components/pagetransition";
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps, router }: AppProps) {
   return (
-    <PageTransition>
-      <Component {...pageProps} />
-    </PageTransition>
+    <AnimatePresence mode="wait">
+      <PageTransition key={router.route}>
+        <Component {...pageProps} />
+      </PageTransition>
+    </AnimatePresence>
   );
 }
 

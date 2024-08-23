@@ -1,30 +1,29 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
-import { motion } from "framer-motion";
 
 const dummyTickets = [
   {
     id: 1,
-    title: "Issue with Sign-Up",
-    description: "Resolve the sign-up form validation.",
+    title: "Bug in Registration Form",
+    description: "Fix the bug in the registration form validation.",
     status: "Open",
   },
   {
     id: 2,
-    title: "UI Bug on Dashboard",
-    description: "Fix the misalignment in the dashboard.",
+    title: "Dashboard Layout Issue",
+    description: "Resolve layout issues on the dashboard page.",
     status: "In Progress",
   },
   {
     id: 3,
-    title: "Enhance Loading Speed",
-    description: "Improve the loading speed of the home page.",
+    title: "Performance Improvement",
+    description: "Optimize the performance of the analytics page.",
     status: "Closed",
   },
 ];
 
-export default function AllTickets() {
+export default function MyTickets() {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -41,7 +40,7 @@ export default function AllTickets() {
       >
         <Topbar toggleSidebar={toggleSidebar} />
         <main className="p-6 flex-1 bg-gray-50">
-          <h1 className="text-2xl font-bold mb-4">All Tickets</h1>
+          <h1 className="text-2xl font-bold mb-4">My Tickets</h1>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {dummyTickets.map((ticket) => (
               <div key={ticket.id} className="p-4 bg-white shadow rounded">
