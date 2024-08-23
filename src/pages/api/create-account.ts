@@ -1,4 +1,7 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+"use server";
+
+import { db } from "../../../lib/db";
+import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
@@ -21,11 +24,10 @@ export default function handler(
 ) {
   if (req.method === 'POST') {
     // Process a POST request
+    
 
     res.status(200).json({ message: 'test' })
   } else {
     res.status(405);
   }
-
-  
 }
