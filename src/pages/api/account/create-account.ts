@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "../../../lib/db";
+import { db } from "../../../../lib/db";
 import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -8,10 +8,11 @@ type Data = {
   id: string;
   name: string;
   email: string;
+  password: string;
+  roles: string[];
 };
 
 type ResponseData = {
-  tickets: any[];
   message: string;
 };
 
@@ -25,13 +26,21 @@ export default async function handler(
 
     try {
       // Process a POST request
-      const tickets = await db.tickets.findMany();
+      await db.users.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          roles: data.roles,
+          active: true
+        }
+      });
 
-      res.status(200).json({ tickets: tickets, message: 'Tickets retrieved successfully' });
+      res.status(200).json({ message: 'User created successfully' });
     } catch (error) {
-      res.status(500).json({ tickets: [], message: 'Error retrieving tickets' });
+      res.status(500).json({ message: 'Error creating user' });
     }
   } else {
-    res.status(405).json({ tickets: [], message: 'Method not allowed' });
+    res.status(405).json({ message: 'Method not allowed' });
   }
 }
