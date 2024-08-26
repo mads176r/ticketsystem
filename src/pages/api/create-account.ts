@@ -10,7 +10,6 @@ type Data = {
   email: string;
   password: string;
   roles: string[];
-  active: boolean;
 };
 
 type ResponseData = {
