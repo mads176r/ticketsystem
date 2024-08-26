@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+//schema
+
+model Users {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String   @unique
+  password String
+  roles    String[]
+  active   Boolean  @default(true)
+  ticketsRequested Tickets[] @relation("RequesterUser")
+  ticketsOwned     Tickets[] @relation("OwnerUser")
+}
+
+model Tickets {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  RequesterID String   @db.ObjectId
+  OwnerID     String   @db.ObjectId
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  closedAt    DateTime?
+  Requester   Users     @relation("RequesterUser", fields: [RequesterID], references: [id])
+  Owner       Users     @relation("OwnerUser", fields: [OwnerID], references: [id])
+}
+
