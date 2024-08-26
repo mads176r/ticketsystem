@@ -1,21 +1,63 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import Topbar from "@/components/Topbar";
+import { format } from "date-fns";
 
 export default function NewTicket() {
   const [isOpen, setIsOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [requesterID, setRequesterID] = useState("");
+  const [ownerID, setOwnerID] = useState("");
+  const [userLevel, setUserLevel] = useState("1");
+  const [createdAt, setCreatedAt] = useState("");
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const ticketData = {
+      title,
+      description,
+      requesterID,
+      ownerID,
+      userLevel,
+      createdAt: new Date().toISOString(),
+    };
+
+    setCreatedAt(ticketData.createdAt);
+
+    try {
+      const response = await fetch("/api/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ticketData),
+      });
+
+      if (response.ok) {
+        console.log("Ticket created successfully!");
+      } else {
+        console.error("Failed to create ticket");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
       <div className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${isOpen ? "pl-64" : "pl-0"}`}>
-        <main className="flex justify-center items-start p-6 flex-1 bg-gray-50 pt-20">
-          <div className="bg-white shadow-md rounded p-6 max-w-lg w-full">
-            <h1 className="text-2xl font-bold mb-6 text-center">New Ticket</h1>
-            <form>
+        <Topbar toggleSidebar={toggleSidebar} />
+        <main className="flex justify-center items-start p-6 flex-1 bg-gray-100 pt-20">
+          <div className="bg-white shadow-xl rounded-lg p-8 max-w-lg w-full">
+            <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">New Ticket</h1>
+            <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
                   Title
@@ -24,6 +66,8 @@ export default function NewTicket() {
                   id="title"
                   type="text"
                   placeholder="Ticket Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
@@ -34,22 +78,39 @@ export default function NewTicket() {
                 <textarea
                   id="description"
                   placeholder="Ticket Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 ></textarea>
               </div>
-
-
-
-              
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="user-level">
+                  User Level
+                </label>
+                <select
+                  id="user-level"
+                  value={userLevel}
+                  onChange={(e) => setUserLevel(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="1">1 - Normal User</option>
+                  <option value="2">2 - IT Supporter</option>
+                  <option value="3">3 - Developer</option>
+                </select>
+              </div>
               <div className="flex items-center justify-center">
                 <button
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
-
                   Create Ticket
                 </button>
               </div>
+              {createdAt && (
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  Ticket Created At: {format(new Date(createdAt), "yyyy-MM-dd HH:mm:ss")}
+                </p>
+              )}
             </form>
           </div>
         </main>

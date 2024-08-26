@@ -27,13 +27,13 @@ export default function DashboardChart() {
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
+        <XAxis dataKey="name" stroke="#4B5563" />
+        <YAxis stroke="#4B5563" />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="open" stroke="#8884d8" />
-        <Line type="monotone" dataKey="In Progress" stroke="#82ca9d" />
-        <Line type="monotone" dataKey="closed" stroke="#ff7300" />
+        <Line type="monotone" dataKey="open" stroke="#3B82F6" />
+        <Line type="monotone" dataKey="inProgress" stroke="#FBBF24" />
+        <Line type="monotone" dataKey="closed" stroke="#EF4444" />
       </LineChart>
     </ResponsiveContainer>
   );

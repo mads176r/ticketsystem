@@ -1,29 +1,33 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
+import { format } from "date-fns";
 
 const dummyTickets = [
   {
     id: 1,
-    title: "Bug in Registration Form",
-    description: "Fix the bug in the registration form validation.",
+    title: "Issue with Sign-Up",
+    description: "Resolve the sign-up form validation.",
     status: "Open",
+    createdAt: new Date(),
   },
   {
     id: 2,
-    title: "Dashboard Layout Issue",
-    description: "Resolve layout issues on the dashboard page.",
+    title: "UI Bug on Dashboard",
+    description: "Fix the misalignment in the dashboard.",
     status: "In Progress",
+    createdAt: new Date(),
   },
   {
     id: 3,
-    title: "Performance Improvement",
-    description: "Optimize the performance of the analytics page.",
+    title: "Enhance Loading Speed",
+    description: "Improve the loading speed of the home page.",
     status: "Closed",
+    createdAt: new Date(),
   },
 ];
 
-export default function MyTickets() {
+export default function AllTickets() {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -39,13 +43,16 @@ export default function MyTickets() {
         }`}
       >
         <Topbar toggleSidebar={toggleSidebar} />
-        <main className="p-6 flex-1 bg-gray-50">
-          <h1 className="text-2xl font-bold mb-4">My Tickets</h1>
+        <main className="p-6 flex-1 bg-gray-100">
+          <h1 className="text-2xl font-bold text-gray-700 mb-4">All Tickets</h1>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {dummyTickets.map((ticket) => (
-              <div key={ticket.id} className="p-4 bg-white shadow rounded">
-                <h2 className="text-xl font-semibold mb-2">{ticket.title}</h2>
+              <div key={ticket.id} className="p-4 bg-white shadow-lg rounded-lg">
+                <h2 className="text-lg font-semibold text-blue-700 mb-2">{ticket.title}</h2>
                 <p className="text-sm text-gray-600">{ticket.description}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Created at: {format(new Date(ticket.createdAt), "PPpp")}
+                </p>
                 <span
                   className={`inline-block mt-2 px-2 py-1 text-sm rounded-full ${
                     ticket.status === "Open"
