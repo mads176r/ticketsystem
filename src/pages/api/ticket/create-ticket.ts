@@ -19,6 +19,8 @@ type Ticket = {
     RequesterID: string;
     OwnerID: string;
     status: string;
+    createdAt: Date;
+    updatedAt: Date ;
     closedAt?: Date | null;
 };
 
