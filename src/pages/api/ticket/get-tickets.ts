@@ -19,7 +19,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'GET') {
     // Extract data from the request body
     const data: Data = req.body;
 
