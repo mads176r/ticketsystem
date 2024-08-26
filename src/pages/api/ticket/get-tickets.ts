@@ -4,12 +4,6 @@ import { db } from "../../../../lib/db";
 import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  id: string;
-  name: string;
-  email: string;
-};
-
 type ResponseData = {
   tickets: any[];
   message: string;
@@ -20,9 +14,6 @@ export default async function handler(
   res: NextApiResponse<ResponseData>
 ) {
   if (req.method === 'GET') {
-    // Extract data from the request body
-    const data: Data = req.body;
-
     try {
       // Process a POST request
       const tickets = await db.tickets.findMany();
