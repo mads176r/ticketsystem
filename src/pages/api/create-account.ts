@@ -15,19 +15,33 @@ type Data = {
 
 type ResponseData = {
   message: string;
-}
+};
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>,
-  data: Data
+  res: NextApiResponse<ResponseData>
 ) {
   if (req.method === 'POST') {
-    // Process a POST request
-    
+    // Extract data from the request body
+    const data: Data = req.body;
 
-    res.status(200).json({ message: 'test' })
+    try {
+      // Process a POST request
+      await db.users.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          roles: data.roles,
+          active: true
+        }
+      });
+
+      res.status(200).json({ message: 'User created successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error creating user' });
+    }
   } else {
-    res.status(405);
+    res.status(405).json({ message: 'Method not allowed' });
   }
 }
