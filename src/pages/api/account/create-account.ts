@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
-  id: string;
   name: string;
   email: string;
   password: string;
