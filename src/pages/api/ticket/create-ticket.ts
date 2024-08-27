@@ -38,13 +38,17 @@ export default async function handler(
 
         data.status = data.status ?? "Open";
 
+        console.log(data)
+
         try {
             const ticket: Ticket = await db.tickets.create({
                 data: data as any
             });
 
+            console.log("Succesfully created ticket")
             res.status(200).json({ finalTickets: ticket, message: 'Ticket created successfully' });
         } catch (error) {
+            console.log("Error in ticket creation")
             res.status(500).json({ finalTickets: null, message: 'Error creating ticket' });
         }
     } else {
