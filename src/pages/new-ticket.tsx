@@ -1,7 +1,26 @@
-import { FormEvent, useState } from "react";
+import { useState, FormEvent } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { format } from "date-fns";
+
+async function createTicket(ticketData: {
+  title: string;
+  description: string;
+  RequesterID: string;
+  OwnerID: string;
+}) {
+  const response = await fetch('/api/ticket/create-ticket', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(ticketData),
+  });
+
+  const data = await response.json();
+  console.log(data.message);
+  return data;
+}
 
 export default function NewTicket() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +28,6 @@ export default function NewTicket() {
   const [description, setDescription] = useState("");
   const [requesterID, setRequesterID] = useState("");
   const [ownerID, setOwnerID] = useState("");
-  const [userLevel, setUserLevel] = useState("1");
   const [createdAt, setCreatedAt] = useState("");
 
   const toggleSidebar = () => {
@@ -24,20 +42,11 @@ export default function NewTicket() {
       description,
       RequesterID: requesterID,
       OwnerID: ownerID,
-      status: "Open", // Assuming default status is open
     };
 
     try {
-      const response = await fetch("/api/ticket/create-ticket.ts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(ticketData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
+      const result = await createTicket(ticketData);
+      if (result.finalTickets?.createdAt) {
         setCreatedAt(result.finalTickets.createdAt);
         console.log("Ticket created successfully!");
       } else {
@@ -83,19 +92,30 @@ export default function NewTicket() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="user-level">
-                  User Level
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="requesterID">
+                  Requester ID
                 </label>
-                <select
-                  id="user-level"
-                  value={userLevel}
-                  onChange={(e) => setUserLevel(e.target.value)}
+                <input
+                  id="requesterID"
+                  type="text"
+                  placeholder="Requester ID"
+                  value={requesterID}
+                  onChange={(e) => setRequesterID(e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option value="1">1 - Normal User</option>
-                  <option value="2">2 - IT Supporter</option>
-                  <option value="3">3 - Developer</option>
-                </select>
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ownerID">
+                  Owner ID
+                </label>
+                <input
+                  id="ownerID"
+                  type="text"
+                  placeholder="Owner ID"
+                  value={ownerID}
+                  onChange={(e) => setOwnerID(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
               </div>
               <div className="flex items-center justify-center">
                 <button
