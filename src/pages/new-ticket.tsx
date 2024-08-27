@@ -22,16 +22,13 @@ export default function NewTicket() {
     const ticketData = {
       title,
       description,
-      requesterID,
-      ownerID,
-      userLevel,
-      createdAt: new Date().toISOString(),
+      RequesterID: requesterID,
+      OwnerID: ownerID,
+      status: "Open", // Assuming default status is open
     };
 
-    setCreatedAt(ticketData.createdAt);
-
     try {
-      const response = await fetch("/api/tickets", {
+      const response = await fetch("/api/ticket/create-ticket.ts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,6 +37,8 @@ export default function NewTicket() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        setCreatedAt(result.finalTickets.createdAt);
         console.log("Ticket created successfully!");
       } else {
         console.error("Failed to create ticket");
