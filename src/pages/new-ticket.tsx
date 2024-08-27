@@ -9,7 +9,7 @@ async function createTicket(ticketData: {
   RequesterID: string;
   OwnerID: string;
 }) {
-  const response = await fetch('/api/ticket/create-ticket', {
+  const response = await fetch('api/ticket/create-ticket', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,5 +1,3 @@
-"use server";
-
 import { db } from "../../../../lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -49,9 +47,10 @@ export default async function handler(
             res.status(200).json({ finalTickets: ticket, message: 'Ticket created successfully' });
         } catch (error) {
             console.log("Error in ticket creation")
-            res.status(500).json({ finalTickets: null, message: 'Error creating ticket' });
+            res.status(400).json({ finalTickets: null, message: 'Error creating ticket' });
         }
     } else {
-        res.status(405).json({ finalTickets: null, message: 'Method not allowed' });
+            console.log("Error in ticket creation")
+            res.status(405).json({ finalTickets: null, message: 'Method not allowed' });
     }
 }
