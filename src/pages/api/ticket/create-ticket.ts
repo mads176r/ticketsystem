@@ -50,6 +50,7 @@ export default async function handler(
             res.status(400).json({ finalTickets: null, message: 'Error creating ticket' });
         }
     } else {
-        res.status(405).json({ finalTickets: null, message: 'Method not allowed' });
+            console.log("Error in ticket creation")
+            res.status(405).json({ finalTickets: null, message: 'Method not allowed' });
     }
 }

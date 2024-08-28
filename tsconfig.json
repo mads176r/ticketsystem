@@ -16,6 +16,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/Topbar.jsx", "src/components/Sidebar.jsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/components/Topbar.tsx",
+    "src/components/Sidebar.tsx"
+  ],
   "exclude": ["node_modules"]
 }
