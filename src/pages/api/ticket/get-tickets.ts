@@ -1,12 +1,9 @@
-"use server";
-
 import { db } from "../../../../lib/db";
-import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type ResponseData = {
   tickets: any[];
-  message: string;
+  message?: string;
 };
 
 export default async function handler(
@@ -15,12 +12,11 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
-      // Process a POST request
       const tickets = await db.tickets.findMany();
-
-      res.status(200).json({ tickets: tickets, message: 'Tickets retrieved successfully' });
+      res.status(200).json({ tickets });
     } catch (error) {
-      res.status(500).json({ tickets: [], message: 'Error retrieving tickets' });
+      console.error('Error fetching tickets:', error);
+      res.status(400).json({ tickets: [], message: 'Error fetching tickets' });
     }
   } else {
     res.status(405).json({ tickets: [], message: 'Method not allowed' });
