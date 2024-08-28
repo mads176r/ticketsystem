@@ -1,18 +1,37 @@
-"use server";
-
 import { db } from "../../../../lib/db";
-import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
+  email: string;
+  password: string;
+};
+
+type Ticket = {
+  id: string;
+  title: string;
+  description: string;
+  RequesterID: string;
+  OwnerID: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  closedAt?: Date | null;
+};
+
+type User = {
+  id: string;
   name: string;
   email: string;
   password: string;
   roles: string[];
+  active: boolean;
+  ticketsRequested: Ticket[];
+  ticketsOwned: Ticket[];
 };
 
 type ResponseData = {
-  message: string;
+  user?: User;
+  message?: string;
 };
 
 export default async function handler(
@@ -24,22 +43,41 @@ export default async function handler(
     const data: Data = req.body;
 
     try {
-      // Process a POST request
-      await db.users.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          roles: data.roles,
-          active: true
-        }
-      });
+      const user = await GetUser(data);
 
-      res.status(200).json({ message: 'User created successfully' });
+      if (user) {
+        res.status(200).json({ user });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
     } catch (error) {
-      res.status(500).json({ message: 'Error creating user' });
+      res.status(500).json({ message: 'Error retrieving user' });
     }
+
   } else {
     res.status(405).json({ message: 'Method not allowed' });
+  }
+}
+
+async function GetUser(data: Data): Promise<User | null> {
+  try {
+    // Find the user with the given email and include related tickets
+    const user = await db.users.findUnique({
+      where: { email: data.email },
+      include: {
+        ticketsRequested: true,
+        ticketsOwned: true,
+      },
+    });
+
+    // Check if the password matches
+    if (user && user.password === data.password) {
+      return user as User;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw new Error('Failed to fetch user');
   }
 }

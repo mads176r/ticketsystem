@@ -28,7 +28,7 @@
     "recharts": "^2.12.7",
     "shadcn-ui": "^0.2.3",
     "undici": "^6.19.8",
-    "vercel": "^32.3.0",
+    "vercel": "^37.1.2",
     "victory-vendor": "^37.0.2"
   },
   "devDependencies": {
