@@ -5,11 +5,33 @@ import { FaTicketAlt } from "react-icons/fa";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/");
+
+    try {
+      const response = await fetch("/api/account/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Login successful!");
+        router.push("/"); // Redirect to home or dashboard
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("An error occurred during login.");
+    }
   };
 
   return (
@@ -20,6 +42,7 @@ export default function Login() {
           <h2 className="text-3xl font-bold text-gray-800">Login to Ticket System</h2>
         </div>
         <form onSubmit={handleSubmit}>
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
               Email

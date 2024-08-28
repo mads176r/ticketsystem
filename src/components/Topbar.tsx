@@ -13,9 +13,7 @@ export default function Topbar({ toggleSidebar }: TopbarProps) {
       >
         <FaBars className="h-5 w-5" />
       </button>
-      <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-semibold text-white">
-        Dashboard
-      </h1>
+
       <div className="absolute right-4 flex items-center space-x-4">
         <input
           type="text"
