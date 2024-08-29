@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,24 +15,58 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
       >
         <div className="flex justify-between items-center px-4 h-16 text-2xl font-bold border-b border-gray-700">
           Menu
-          {/* Luk knappen her, hvis nødvendigt */}
         </div>
         <nav className="flex-1 p-4">
           <ul>
             <li className="mb-4">
-              <Link href="/">Dashboard</Link>
+              <Link href="/" legacyBehavior>
+                <a className="block relative group">
+                  <span className="block px-3 py-2 relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                    Dashboard
+                  </span>
+                  <span className="absolute inset-0 w-full h-full bg-gray-700 scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+                </a>
+              </Link>
             </li>
             <li className="mb-4">
-              <Link href="/all-tickets">All Tickets</Link>
+              <Link href="/all-tickets" legacyBehavior>
+                <a className="block relative group">
+                  <span className="block px-3 py-2 relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                    All Tickets
+                  </span>
+                  <span className="absolute inset-0 w-full h-full bg-gray-700 scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+                </a>
+              </Link>
             </li>
             <li className="mb-4">
-              <Link href="/my-tickets">My Tickets</Link>
+              <Link href="/my-tickets" legacyBehavior>
+                <a className="block relative group">
+                  <span className="block px-3 py-2 relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                    My Tickets
+                  </span>
+                  <span className="absolute inset-0 w-full h-full bg-gray-700 scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+                </a>
+              </Link>
             </li>
             <li className="mb-4">
-              <Link href="/new-ticket">New Ticket</Link>
+              <Link href="/new-ticket" legacyBehavior>
+                <a className="block relative group">
+                  <span className="block px-3 py-2 relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                    New Ticket
+                  </span>
+                  <span className="absolute inset-0 w-full h-full bg-gray-700 scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+                </a>
+              </Link>
             </li>
             <li className="mb-4">
-              <Link href="/statistics">Statistics</Link>
+              <Link href="/statistics" legacyBehavior>
+                <a className="block relative group">
+                  <span className="block px-3 py-2 relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                    Statistics
+                  </span>
+                  <span className="absolute inset-0 w-full h-full bg-gray-700 scale-x-0 origin-left transition-transform duration-500 ease-in-out group-hover:scale-x-100 z-0"></span>
+                </a>
+              </Link>
             </li>
           </ul>
         </nav>
