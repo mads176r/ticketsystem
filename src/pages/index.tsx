@@ -1,12 +1,52 @@
 import { useRouter } from 'next/router';
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import DashboardChart from "@/components/DashboardChart";
 
+
+interface TicketData {
+  id: string;
+  title: string;
+  description: string;
+  RequesterID: string;
+  OwnerID: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  closedAt?: Date | null;
+}
+
+
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter(); // Get the router object from Next.js
+  const [tickets, setTickets] = useState<TicketData[]>([]);
+
+  useEffect(() => {
+    async function fetchTickets() {
+      try {
+        const response = await fetch("/api/ticket/get-tickets", {
+          method: "GET",
+        });
+        const data = await response.json();
+        console.log("Fetched data:", data); // Debugging log
+        if (Array.isArray(data.tickets)) {
+          setTickets(data.tickets);
+        } else {
+          console.error("Data is not an array:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchTickets();
+  }, []);
+
+
+
+
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -17,16 +57,10 @@ export default function Home() {
     router.push('/statistics'); // Redirect to the statistics page
   };
 
-  const dummyTickets = [
-    { id: 1, title: "Bug in Login Page", description: "Fix the login bug on the login page.", status: "Open" },
-    { id: 2, title: "Add Dark Mode", description: "Implement dark mode feature.", status: "In Progress" },
-    { id: 3, title: "Improve Performance", description: "Optimize the performance for dashboard.", status: "Closed" },
-  ];
-
-  const totalTickets = dummyTickets.length;
-  const openTickets = dummyTickets.filter(ticket => ticket.status === "Open").length;
-  const inProgressTickets = dummyTickets.filter(ticket => ticket.status === "In Progress").length;
-  const closedTickets = dummyTickets.filter(ticket => ticket.status === "Closed").length;
+  const totalTickets = tickets.length;
+  const openTickets = tickets.filter(ticket => ticket.status === "Open").length;
+  const inProgressTickets = tickets.filter(ticket => ticket.status === "In Progress").length;
+  const closedTickets = tickets.filter(ticket => ticket.status === "Closed").length;
 
   return (
     <div className="flex min-h-screen">
