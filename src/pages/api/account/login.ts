@@ -6,6 +6,11 @@ type Data = {
   password: string;
 };
 
+type CookieData = {
+  userID: string;
+  name: string;
+}
+
 type Ticket = {
   id: string;
   title: string;
@@ -44,9 +49,16 @@ export default async function handler(
 
     try {
       const user = await GetUser(data);
+      
 
       if (user) {
-        res.status(200).json({ user });
+        const cookieData: CookieData = ({
+          userID: user.id,
+          name: user.name
+        })
+        
+        res.setHeader('Set-Cookie', 'userData=' + JSON.stringify(cookieData) + '; Path=/; HttpOnly; Secure; SameSite=Strict');
+        res.status(200).json({ message: 'Cookie set' });
       } else {
         res.status(404).json({ message: 'User not found' });
       }
