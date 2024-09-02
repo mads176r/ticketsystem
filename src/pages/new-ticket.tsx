@@ -1,7 +1,12 @@
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { format } from "date-fns";
+
+interface UserData {
+  id: string;
+  name: string;
+}
 
 async function createTicket(ticketData: {
   title: string;
@@ -9,10 +14,10 @@ async function createTicket(ticketData: {
   RequesterID: string;
   OwnerID: string;
 }) {
-  const response = await fetch('api/ticket/create-ticket', {
-    method: 'POST',
+  const response = await fetch("/api/ticket/create-ticket", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(ticketData),
   });
@@ -22,7 +27,66 @@ async function createTicket(ticketData: {
   return data;
 }
 
-export default function NewTicket() {
+async function fetchSuggestions(query: string): Promise<UserData[]> {
+  const response = await fetch(`/api/account/search?query=${query}`);
+  const data = await response.json();
+  return data.users;
+}
+
+function AutocompleteInput({
+  placeholder,
+  value,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [suggestions, setSuggestions] = useState<UserData[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      fetchSuggestions(value).then(setSuggestions);
+      setIsOpen(true);
+    } else {
+      setSuggestions([]);
+      setIsOpen(false);
+    }
+  }, [value]);
+
+  const handleSelect = (suggestion: UserData) => {
+    onChange(suggestion.id); // Set input value to user ID
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      />
+      {isOpen && suggestions.length > 0 && (
+        <ul className="absolute bg-white border rounded mt-1 w-full z-10 max-h-48 overflow-auto">
+          {suggestions.map((suggestion) => (
+            <li
+              key={suggestion.id}
+              onClick={() => handleSelect(suggestion)}
+              className="p-2 cursor-pointer hover:bg-gray-100"
+            >
+              {suggestion.name} ({suggestion.id})
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export default function NewTicke() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -60,14 +124,23 @@ export default function NewTicket() {
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-      <div className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${isOpen ? "pl-64" : "pl-0"}`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-500 ease-in-out ${
+          isOpen ? "pl-64" : "pl-0"
+        }`}
+      >
         <Topbar toggleSidebar={toggleSidebar} />
         <main className="flex justify-center items-start p-6 flex-1 bg-gray-100 pt-20">
           <div className="bg-white shadow-xl rounded-lg p-8 max-w-lg w-full">
-            <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">New Ticket</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">
+              New Ticket
+            </h1>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="title"
+                >
                   Title
                 </label>
                 <input
@@ -80,7 +153,10 @@ export default function NewTicket() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="description"
+                >
                   Description
                 </label>
                 <textarea
@@ -92,29 +168,29 @@ export default function NewTicket() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="requesterID">
-                  Requester ID
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="requesterID"
+                >
+                  Requester
                 </label>
-                <input
-                  id="requesterID"
-                  type="text"
-                  placeholder="Requester ID"
+                <AutocompleteInput
+                  placeholder="Requester Name or ID"
                   value={requesterID}
-                  onChange={(e) => setRequesterID(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  onChange={setRequesterID}
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ownerID">
-                  Owner ID
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="ownerID"
+                >
+                  Owner
                 </label>
-                <input
-                  id="ownerID"
-                  type="text"
-                  placeholder="Owner ID"
+                <AutocompleteInput
+                  placeholder="Owner Name or ID"
                   value={ownerID}
-                  onChange={(e) => setOwnerID(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  onChange={setOwnerID}
                 />
               </div>
               <div className="flex items-center justify-center">
@@ -127,7 +203,8 @@ export default function NewTicket() {
               </div>
               {createdAt && (
                 <p className="text-center text-sm text-gray-500 mt-4">
-                  Ticket Created At: {format(new Date(createdAt), "yyyy-MM-dd HH:mm:ss")}
+                  Ticket Created At:{" "}
+                  {format(new Date(createdAt), "yyyy-MM-dd HH:mm:ss")}
                 </p>
               )}
             </form>
