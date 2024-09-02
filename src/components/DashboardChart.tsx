@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -9,23 +10,77 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { name: "Jan", open: 4000, closed: 2400, inProgress: 2400 },
-  { name: "Feb", open: 3000, closed: 1398, inProgress: 2210 },
-  { name: "Mar", open: 2000, closed: 9800, inProgress: 2290 },
-  { name: "Apr", open: 2780, closed: 3908, inProgress: 2000 },
-  { name: "May", open: 1890, closed: 4800, inProgress: 2181 },
-  { name: "Jun", open: 2390, closed: 3800, inProgress: 2500 },
-  { name: "Jul", open: 3490, closed: 4300, inProgress: 2100 },
-];
+interface TicketData {
+  id: string;
+  title: string;
+  description: string;
+  RequesterID: string;
+  OwnerID: string;
+  status: string;
+  createdAt: string; // Changed to string for JSON compatibility
+  updatedAt: string; // Changed to string for JSON compatibility
+  closedAt?: string | null; // Changed to string for JSON compatibility
+}
 
 export default function DashboardChart() {
+  const [tickets, setTickets] = useState<TicketData[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]); // State to hold chart data
+
+  useEffect(() => {
+    async function fetchTickets() {
+      try {
+        const response = await fetch("/api/ticket/get-tickets", {
+          method: "GET",
+        });
+        const data = await response.json();
+        console.log("Fetched data:", data); // Debugging log
+        if (Array.isArray(data.tickets)) {
+          setTickets(data.tickets);
+        } else {
+          console.error("Data is not an array:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchTickets();
+  }, []);
+
+  useEffect(() => {
+    // Process the tickets to create chart data
+    const processChartData = () => {
+      const monthlyData: { [key: string]: { open: number; closed: number; inProgress: number } } = {};
+
+      tickets.forEach((ticket) => {
+        const month = new Date(ticket.createdAt).toLocaleString("default", { month: "short" });
+        if (!monthlyData[month]) {
+          monthlyData[month] = { open: 0, closed: 0, inProgress: 0 };
+        }
+
+        if (ticket.status === "open") {
+          monthlyData[month].open += 1;
+        } else if (ticket.status === "closed") {
+          monthlyData[month].closed += 1;
+        } else if (ticket.status === "in progress") {
+          monthlyData[month].inProgress += 1;
+        }
+      });
+
+      const formattedData = Object.keys(monthlyData).map((month) => ({
+        name: month,
+        ...monthlyData[month],
+      }));
+
+      setChartData(formattedData);
+    };
+
+    processChartData();
+  }, [tickets]);
+
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
+      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" stroke="#4B5563" />
         <YAxis stroke="#4B5563" />

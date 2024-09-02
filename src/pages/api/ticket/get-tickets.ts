@@ -12,7 +12,14 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
-      const tickets = await db.tickets.findMany();
+      // Fetch tickets with their associated Requester and Owner user data
+      const tickets = await db.tickets.findMany({
+        include: {
+          Requester: true, // Include related Requester user data
+          Owner: true,     // Include related Owner user data
+        },
+      });
+
       res.status(200).json({ tickets });
     } catch (error) {
       console.error('Error fetching tickets:', error);
