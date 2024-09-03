@@ -14,7 +14,7 @@ async function createTicket(ticketData: {
   RequesterID: string;
   OwnerID: string;
 }) {
-  const response = await fetch("/api/ticket/create-ticket", {
+  const response = await fetch("api/ticket/create-ticket", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,75 +27,61 @@ async function createTicket(ticketData: {
   return data;
 }
 
-async function fetchSuggestions(query: string): Promise<UserData[]> {
-  const response = await fetch(`/api/account/search?query=${query}`);
-  const data = await response.json();
-  return data.users;
-}
-
-function AutocompleteInput({
-  placeholder,
-  value,
-  onChange,
-}: {
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const [suggestions, setSuggestions] = useState<UserData[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (value) {
-      fetchSuggestions(value).then(setSuggestions);
-      setIsOpen(true);
-    } else {
-      setSuggestions([]);
-      setIsOpen(false);
-    }
-  }, [value]);
-
-  const handleSelect = (suggestion: UserData) => {
-    onChange(suggestion.id); // Set input value to user ID
-    setIsOpen(false);
-  };
-
-  return (
-    <div className="relative">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      />
-      {isOpen && suggestions.length > 0 && (
-        <ul className="absolute bg-white border rounded mt-1 w-full z-10 max-h-48 overflow-auto">
-          {suggestions.map((suggestion) => (
-            <li
-              key={suggestion.id}
-              onClick={() => handleSelect(suggestion)}
-              className="p-2 cursor-pointer hover:bg-gray-100"
-            >
-              {suggestion.name} ({suggestion.id})
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-export default function NewTicke() {
+export default function NewTicket() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [requesterID, setRequesterID] = useState("");
   const [ownerID, setOwnerID] = useState("");
   const [createdAt, setCreatedAt] = useState("");
+  const [accounts, setAccounts] = useState<UserData[]>([]);
+  const [filteredRequesterOptions, setFilteredRequesterOptions] = useState<UserData[]>([]);
+  const [filteredOwnerOptions, setFilteredOwnerOptions] = useState<UserData[]>([]);
+
+  useEffect(() => {
+    async function fetchAccounts() {
+      try {
+        const response = await fetch("/api/account/get-accounts", {
+          method: "GET",
+        });
+        const data = await response.json();
+
+        if (Array.isArray(data.users)) {
+          setAccounts(data.users);
+        } else {
+          console.error("Data.users is not an array:", data.users);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchAccounts();
+  }, []);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  // Filter options based on input
+  const handleRequesterChange = (value: string) => {
+    setRequesterID(value);
+    setFilteredRequesterOptions(
+      accounts.filter((account) =>
+        account.name.toLowerCase().includes(value.toLowerCase()) ||
+        account.id.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  };
+
+  const handleOwnerChange = (value: string) => {
+    setOwnerID(value);
+    setFilteredOwnerOptions(
+      accounts.filter((account) =>
+        account.name.toLowerCase().includes(value.toLowerCase()) ||
+        account.id.toLowerCase().includes(value.toLowerCase())
+      )
+    );
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -104,8 +90,8 @@ export default function NewTicke() {
     const ticketData = {
       title,
       description,
-      RequesterID: requesterID,
-      OwnerID: ownerID,
+      RequesterID: requesterID.split(" - ")[0],
+      OwnerID: ownerID.split(" - ")[0],
     };
 
     try {
@@ -136,11 +122,9 @@ export default function NewTicke() {
               New Ticket
             </h1>
             <form onSubmit={handleSubmit}>
+              {/* Title and Description fields */}
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="title"
-                >
+                <label htmlFor="title" className="block text-gray-700 text-sm font-bold mb-2">
                   Title
                 </label>
                 <input
@@ -153,10 +137,7 @@ export default function NewTicke() {
                 />
               </div>
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="description"
-                >
+                <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">
                   Description
                 </label>
                 <textarea
@@ -167,32 +148,64 @@ export default function NewTicke() {
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 ></textarea>
               </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="requesterID"
-                >
+
+              {/* Requester ID field with dynamic dropdown */}
+              <div className="mb-4 relative">
+                <label htmlFor="requesterID" className="block text-gray-700 text-sm font-bold mb-2">
                   Requester
                 </label>
-                <AutocompleteInput
-                  placeholder="Requester Name or ID"
+                <input
+                  id="requesterID"
+                  type="text"
+                  placeholder="Requester ID or Name"
                   value={requesterID}
-                  onChange={setRequesterID}
+                  onChange={(e) => handleRequesterChange(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
+                {filteredRequesterOptions.length > 0 && (
+                  <ul className="absolute z-10 bg-white border border-gray-300 mt-1 w-full max-h-40 overflow-auto shadow-lg">
+                    {filteredRequesterOptions.map((account) => (
+                      <li
+                        key={account.id}
+                        onClick={() => setRequesterID(`${account.id} - ${account.name}`)}
+                        className="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                      >
+                        {account.id} - {account.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="ownerID"
-                >
+
+              {/* Owner ID field with dynamic dropdown */}
+              <div className="mb-4 relative">
+                <label htmlFor="ownerID" className="block text-gray-700 text-sm font-bold mb-2">
                   Owner
                 </label>
-                <AutocompleteInput
-                  placeholder="Owner Name or ID"
+                <input
+                  id="ownerID"
+                  type="text"
+                  placeholder="Owner ID or Name"
                   value={ownerID}
-                  onChange={setOwnerID}
+                  onChange={(e) => handleOwnerChange(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
+                {filteredOwnerOptions.length > 0 && (
+                  <ul className="absolute z-10 bg-white border border-gray-300 mt-1 w-full max-h-40 overflow-auto shadow-lg">
+                    {filteredOwnerOptions.map((account) => (
+                      <li
+                        key={account.id}
+                        onClick={() => setOwnerID(`${account.id} - ${account.name}`)}
+                        className="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                      >
+                        {account.id} - {account.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+              {/* Submit button */}
               <div className="flex items-center justify-center">
                 <button
                   type="submit"
@@ -203,8 +216,7 @@ export default function NewTicke() {
               </div>
               {createdAt && (
                 <p className="text-center text-sm text-gray-500 mt-4">
-                  Ticket Created At:{" "}
-                  {format(new Date(createdAt), "yyyy-MM-dd HH:mm:ss")}
+                  Ticket Created At: {format(new Date(createdAt), "yyyy-MM-dd HH:mm:ss")}
                 </p>
               )}
             </form>
