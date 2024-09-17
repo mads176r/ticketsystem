@@ -12,6 +12,7 @@
     "@prisma/client": "^5.18.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.4",
+    "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
     "cookies-next": "^4.2.1",
     "daisyui": "^4.12.10",
@@ -29,7 +30,7 @@
     "recharts": "^2.12.7",
     "shadcn-ui": "^0.2.3",
     "undici": "^6.19.8",
-    "vercel": "^37.1.2",
+    "vercel": "^32.3.0",
     "victory-vendor": "^37.0.2"
   },
   "devDependencies": {
