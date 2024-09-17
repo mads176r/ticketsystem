@@ -1,55 +1,28 @@
-import { db } from "../../../../lib/db";
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
+import { db } from "../../../../lib/db"; // Assuming you're using Prisma for your database
 
-type Data = {
-    title: string | null;
-    description: string | null;
-    RequesterID: string | null;
-    OwnerID: string | null;
-    status: string | null;
-    closedAt?: Date | null;
-};
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "PATCH") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
 
-type Ticket = {
-    id: string;
-    title: string | null;
-    description: string | null;
-    RequesterID: string | null;
-    OwnerID: string | null;
-    status: string | null;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    closedAt?: Date | null;
-};
+  const data = req.body;
 
-type ResponseData = {
-    finalTickets: Ticket | null;
-    message: string;
-};
+  try {
+    const updatedTicket = await db.tickets.update({
+      where: { id: data.id },
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        RequesterID: data.RequesterID, // Ensure this matches your database schema
+        OwnerID: data.OwnerID,         // Ensure this matches your database schema
+      },
+    });
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<ResponseData>
-) {
-    if (req.method === 'PATCH') {
-        const data: Data = req.body;
-
-        console.log(data)
-
-        try {
-            const ticket: Ticket = await db.tickets.update({
-                data: data as any,
-                where: {id: req.body.id as string}
-            });
-
-            console.log("Succesfully created ticket")
-            res.status(200).json({ finalTickets: ticket, message: 'Ticket created successfully' });
-        } catch (error) {
-            console.log("Error in ticket creation")
-            res.status(400).json({ finalTickets: null, message: 'Error creating ticket' });
-        }
-    } else {
-            console.log("Error in ticket creation")
-            res.status(405).json({ finalTickets: null, message: 'Method not allowed' });
-    }
+    res.status(200).json({ finalTickets: updatedTicket });
+  } catch (error) {
+    console.error("Error in ticket updating", error);
+    res.status(400).json({ finalTickets: null, message: 'Error in ticket updating', error });
+  }
 }
