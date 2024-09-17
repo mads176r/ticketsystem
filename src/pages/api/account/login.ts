@@ -1,5 +1,6 @@
 import { db } from "../../../../lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
+import bcrypt from "bcrypt";
 
 type Data = {
   email: string;
@@ -39,6 +40,13 @@ type ResponseData = {
   message?: string;
 };
 
+export async function comparePassword(
+  plainPassword: string,
+  hashedPassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(plainPassword, hashedPassword);
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
@@ -49,7 +57,7 @@ export default async function handler(
     try {
       const user = await GetUser(data);
 
-      if (user) {
+      if (user && await comparePassword(data.password, user.password)) {
         const cookieData: CookieData = {
           userID: user.id,
           name: user.name,
@@ -62,11 +70,11 @@ export default async function handler(
           `userData=${encodeURIComponent(
             JSON.stringify(cookieData)
           )}; Path=/; HttpOnly; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-        );        
+        );
 
         res.status(200).json({ message: "Cookie set" });
       } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(401).json({ message: "Invalid email or password" });
       }
     } catch (error) {
       console.error("Error retrieving user:", error);
@@ -76,7 +84,6 @@ export default async function handler(
     res.status(405).json({ message: "Method not allowed" });
   }
 }
-
 
 async function GetUser(data: Data): Promise<User | null> {
   try {
@@ -88,11 +95,7 @@ async function GetUser(data: Data): Promise<User | null> {
       },
     });
 
-    if (user && user.password === data.password) {
-      return user as User;
-    } else {
-      return null;
-    }
+    return user as User | null;
   } catch (error) {
     console.error("Error fetching user:", error);
     throw new Error("Failed to fetch user");

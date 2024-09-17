@@ -1,6 +1,13 @@
 import { db } from "../../../../lib/db";
-import { revalidatePath } from "next/cache";
 import type { NextApiRequest, NextApiResponse } from "next";
+import bcrypt from 'bcrypt';
+
+const saltRounds = 10;
+
+// Utility function to hash passwords
+async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, saltRounds);
+}
 
 type Data = {
   name: string;
@@ -22,12 +29,15 @@ export default async function handler(
     const data: Data = req.body;
 
     try {
+      // Hash the password
+      const hashedPassword = await hashPassword(data.password);
+
       // Process a POST request
       await db.users.create({
         data: {
           name: data.name,
           email: data.email,
-          password: data.password,
+          password: hashedPassword,
           roles: data.roles,
           active: true
         }
@@ -35,6 +45,7 @@ export default async function handler(
 
       res.status(200).json({ message: 'User created successfully' });
     } catch (error) {
+      console.error('Error creating user:', error);
       res.status(500).json({ message: 'Error creating user' });
     }
   } else {
