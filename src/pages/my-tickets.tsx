@@ -21,9 +21,16 @@ export default function AllTickets() {
   useEffect(() => {
     async function fetchTickets() {
       try {
-        const response = await fetch("/api/ticket/get-tickets", {
+        const response = await fetch("/api/ticket/getmy-tickets", {
           method: "GET",
         });
+
+        if (response.status === 401) {
+          // Handle unauthorized case (redirect to login or show a message)
+          console.error("Unauthorized, please log in.");
+          return;
+        }
+
         const data = await response.json();
         console.log("Fetched data:", data); // Debugging log
         if (Array.isArray(data.tickets)) {
@@ -60,9 +67,12 @@ export default function AllTickets() {
       >
         <Topbar toggleSidebar={toggleSidebar} />
         <main className="p-6 flex-1 bg-gray-50">
-          <h1 className="text-2xl font-bold mb-4">All Tickets</h1>
+          <h1 className="text-2xl font-bold mb-4">My Tickets</h1>
           <div className="flex gap-4">
-            <div className="flex-1 flex flex-col bg-green-200 bg-opacity-50 p-4 rounded overflow-y-auto" style={{ minHeight: '50vh' }}>
+            <div
+              className="flex-1 flex flex-col bg-green-200 bg-opacity-50 p-4 rounded overflow-y-auto"
+              style={{ minHeight: "50vh" }}
+            >
               <h2 className="text-xl font-bold mb-4">Open Tickets</h2>
               {openTickets.map((ticket) => (
                 <div
@@ -78,7 +88,10 @@ export default function AllTickets() {
                 </div>
               ))}
             </div>
-            <div className="flex-1 flex flex-col bg-yellow-200 bg-opacity-50 p-4 rounded overflow-y-auto" style={{ minHeight: '50vh' }}>
+            <div
+              className="flex-1 flex flex-col bg-yellow-200 bg-opacity-50 p-4 rounded overflow-y-auto"
+              style={{ minHeight: "50vh" }}
+            >
               <h2 className="text-xl font-bold mb-4">In Progress Tickets</h2>
               {inProgressTickets.map((ticket) => (
                 <div
@@ -94,7 +107,10 @@ export default function AllTickets() {
                 </div>
               ))}
             </div>
-            <div className="flex-1 flex flex-col bg-red-200 bg-opacity-50 p-4 rounded overflow-y-auto" style={{ minHeight: '50vh' }}>
+            <div
+              className="flex-1 flex flex-col bg-red-200 bg-opacity-50 p-4 rounded overflow-y-auto"
+              style={{ minHeight: "50vh" }}
+            >
               <h2 className="text-xl font-bold mb-4">Closed Tickets</h2>
               {closedTickets.map((ticket) => (
                 <div
