@@ -1,57 +1,36 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaBars } from "react-icons/fa";
 
 interface TopbarProps {
   toggleSidebar: () => void;
 }
 
-interface CookieData {
-  userID: string;
+interface User {
+  id: string;
   name: string;
 }
 
 export default function Topbar({ toggleSidebar }: TopbarProps) {
   const [userName, setUserName] = useState<string | null>(null);
 
-  // Function to get a specific cookie value by name
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-    return null;
-  };
-
-  const fetchUserNameFromCookie = () => {
-    const cookie = getCookie("userData");
-    console.log("Cookie found:", cookie); // Debug: Log raw cookie content
-    if (cookie) {
-      try {
-        const parsedCookie: CookieData = JSON.parse(decodeURIComponent(cookie));
-        console.log("Parsed Cookie:", parsedCookie); // Debug: Log parsed cookie content
-        setUserName(parsedCookie.name);
-      } catch (error) {
-        console.error("Failed to parse cookie:", error);
-      }
-    } else {
-      console.log("No cookie found"); // Debug: Log if cookie is not found
-      setUserName(null);
-    }
-  };
-  
-
   useEffect(() => {
-    fetchUserNameFromCookie();
+    async function fetchUserData() {
+      try {
+        const response = await fetch("/api/account/get-account");
+        const data = await response.json();
 
-    // Optional: Fetch cookie when window regains focus
-    const handleFocus = () => {
-      fetchUserNameFromCookie();
-    };
-    window.addEventListener("focus", handleFocus);
+        if (data.user) {
+          setUserName(data.user.name);
+        } else {
+          setUserName(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setUserName(null);
+      }
+    }
 
-    // Cleanup listener on unmount
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
+    fetchUserData();
   }, []);
 
   return (
@@ -71,7 +50,7 @@ export default function Topbar({ toggleSidebar }: TopbarProps) {
         />
         {userName ? (
           <div className="bg-blue-300 p-2 rounded-full text-white">
-            <span>{userName}</span> {/* Display the user's name from the cookie */}
+            <span>{userName}</span>
           </div>
         ) : (
           <button
